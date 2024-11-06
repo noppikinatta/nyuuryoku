@@ -6,13 +6,15 @@ import (
 )
 
 type Keyboard struct {
-	pressedFn          func(key ebiten.Key) bool
-	justPressedFn      func(key ebiten.Key) bool
-	justReleasedFn     func(key ebiten.Key) bool
-	pressedDurationFn  func(key ebiten.Key) int
-	keyNameFn          func(key ebiten.Key) string
-	appendPressedFn    func(keys []ebiten.Key) []ebiten.Key
-	appendInputCharsFn func(runes []rune) []rune
+	pressedFn            func(key ebiten.Key) bool
+	justPressedFn        func(key ebiten.Key) bool
+	justReleasedFn       func(key ebiten.Key) bool
+	pressedDurationFn    func(key ebiten.Key) int
+	keyNameFn            func(key ebiten.Key) string
+	appendPressedFn      func(keys []ebiten.Key) []ebiten.Key
+	appendJustPressedFn  func(keys []ebiten.Key) []ebiten.Key
+	appendJustReleasedFn func(keys []ebiten.Key) []ebiten.Key
+	appendInputCharsFn   func(runes []rune) []rune
 }
 
 func NewKeyboard() *Keyboard {
@@ -25,6 +27,8 @@ func NewKeyboard() *Keyboard {
 	s.SetPressedDuration(inpututil.KeyPressDuration)
 	s.SetKeyName(ebiten.KeyName)
 	s.SetAppendPressed(inpututil.AppendPressedKeys)
+	s.SetAppendJustPressed(inpututil.AppendJustPressedKeys)
+	s.SetAppendJustReleased(inpututil.AppendJustReleasedKeys)
 	s.SetAppendInputChars(ebiten.AppendInputChars)
 
 	return k
@@ -52,6 +56,14 @@ func (k *Keyboard) KeyName(key ebiten.Key) string {
 
 func (k *Keyboard) AppendPressed(keys []ebiten.Key) []ebiten.Key {
 	return k.appendPressedFn(keys)
+}
+
+func (k *Keyboard) AppendJustPressed(keys []ebiten.Key) []ebiten.Key {
+	return k.appendJustPressedFn(keys)
+}
+
+func (k *Keyboard) AppendJustReleased(keys []ebiten.Key) []ebiten.Key {
+	return k.appendJustReleasedFn(keys)
 }
 
 func (k *Keyboard) AppendInputChars(runes []rune) []rune {
@@ -84,6 +96,14 @@ func (s *KeyboardSetter) SetKeyName(keyNameFn func(key ebiten.Key) string) {
 
 func (s *KeyboardSetter) SetAppendPressed(appendPressedFn func(keys []ebiten.Key) []ebiten.Key) {
 	s.Keyboard.appendPressedFn = appendPressedFn
+}
+
+func (s *KeyboardSetter) SetAppendJustPressed(appendJustPressedFn func(keys []ebiten.Key) []ebiten.Key) {
+	s.Keyboard.appendJustPressedFn = appendJustPressedFn
+}
+
+func (s *KeyboardSetter) SetAppendJustReleased(appendJustReleasedFn func(keys []ebiten.Key) []ebiten.Key) {
+	s.Keyboard.appendJustReleasedFn = appendJustReleasedFn
 }
 
 func (s *KeyboardSetter) SetAppendInputChars(appendInputCharsFn func(runes []rune) []rune) {
