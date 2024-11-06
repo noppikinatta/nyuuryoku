@@ -15,7 +15,7 @@ type Keyboard struct {
 	appendInputCharsFn func(runes []rune) []rune
 }
 
-func NewKeyboard2() *Keyboard {
+func NewKeyboard() *Keyboard {
 	k := &Keyboard{}
 	s := KeyboardSetter{Keyboard: k}
 
