@@ -5,42 +5,77 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
-type Mouse interface {
-	CursorPosition() (int, int)
-	Pressed(button ebiten.MouseButton) bool
-	JustPressed(button ebiten.MouseButton) bool
-	JustReleased(button ebiten.MouseButton) bool
-	PressedDuration(button ebiten.MouseButton) int
-	Wheel() (xoff, yoff float64)
+type Mouse struct {
+	cursorPositionFn  func() (int, int)
+	pressedFn         func(button ebiten.MouseButton) bool
+	justPressedFn     func(button ebiten.MouseButton) bool
+	justReleasedFn    func(button ebiten.MouseButton) bool
+	pressedDurationFn func(button ebiten.MouseButton) int
+	wheelFn           func() (xoff, yoff float64)
 }
 
-type mouseImpl struct {
+func NewMouse() *Mouse {
+	m := &Mouse{}
+	s := MouseSetter{Mouse: m}
+
+	s.SetCursorPositionFunc(ebiten.CursorPosition)
+	s.SetPressedFunc(ebiten.IsMouseButtonPressed)
+	s.SetJustPressedFunc(inpututil.IsMouseButtonJustPressed)
+	s.SetJustReleasedFunc(inpututil.IsMouseButtonJustReleased)
+	s.SetPressedDurationFunc(inpututil.MouseButtonPressDuration)
+	s.SetWheelFunc(ebiten.Wheel)
+
+	return m
 }
 
-func NewMouse() Mouse {
-	return &mouseImpl{}
+func (m *Mouse) CursorPosition() (int, int) {
+	return m.cursorPositionFn()
 }
 
-func (m *mouseImpl) CursorPosition() (int, int) {
-	return ebiten.CursorPosition()
+func (m *Mouse) Pressed(button ebiten.MouseButton) bool {
+	return m.pressedFn(button)
 }
 
-func (m *mouseImpl) Pressed(button ebiten.MouseButton) bool {
-	return ebiten.IsMouseButtonPressed(button)
+func (m *Mouse) JustPressed(button ebiten.MouseButton) bool {
+	return m.justPressedFn(button)
 }
 
-func (m *mouseImpl) JustPressed(button ebiten.MouseButton) bool {
-	return inpututil.IsMouseButtonJustPressed(button)
+func (m *Mouse) JustReleased(button ebiten.MouseButton) bool {
+	return m.justReleasedFn(button)
 }
 
-func (m *mouseImpl) JustReleased(button ebiten.MouseButton) bool {
-	return inpututil.IsMouseButtonJustReleased(button)
+func (m *Mouse) PressedDuration(button ebiten.MouseButton) int {
+	return m.pressedDurationFn(button)
 }
 
-func (m *mouseImpl) PressedDuration(button ebiten.MouseButton) int {
-	return inpututil.MouseButtonPressDuration(button)
+func (m *Mouse) Wheel() (xoff, yoff float64) {
+	return m.wheelFn()
 }
 
-func (m *mouseImpl) Wheel() (xoff, yoff float64) {
-	return ebiten.Wheel()
+type MouseSetter struct {
+	Mouse *Mouse
+}
+
+func (m *MouseSetter) SetCursorPositionFunc(cursorPositionFn func() (int, int)) {
+	m.Mouse.cursorPositionFn = cursorPositionFn
+}
+
+func (m *MouseSetter) SetPressedFunc(pressedFn func(button ebiten.MouseButton) bool) {
+	m.Mouse.pressedFn = pressedFn
+}
+
+func (m *MouseSetter) SetJustPressedFunc(justPressedFn func(button ebiten.MouseButton) bool) {
+	m.Mouse.justPressedFn = justPressedFn
+}
+
+func (m *MouseSetter) SetJustReleasedFunc(justReleasedFn func(button ebiten.MouseButton) bool) {
+	m.Mouse.justReleasedFn = justReleasedFn
+}
+
+func (m *MouseSetter) SetPressedDurationFunc(pressedDurationFn func(button ebiten.MouseButton) int) {
+	m.Mouse.pressedDurationFn = pressedDurationFn
+}
+
+func (m *MouseSetter) SetWheelFunc(wheelFn func() (xoff, yoff float64)) {
+	m.Mouse.wheelFn = wheelFn
 }
