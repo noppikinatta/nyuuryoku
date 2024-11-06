@@ -10,8 +10,9 @@ type Keyboard interface {
 	JustPressed(key ebiten.Key) bool
 	JustReleased(key ebiten.Key) bool
 	PressedDuration(key ebiten.Key) int
-	Idle(key ebiten.Key) bool
-	AppendInputChars(cc []rune) []rune
+	KeyName(key ebiten.Key) string
+	AppendPressed(keys []ebiten.Key) []ebiten.Key
+	AppendInputChars(runes []rune) []rune
 }
 
 func NewKeyboard() Keyboard {
@@ -37,8 +38,12 @@ func (k *keyboardImpl) PressedDuration(key ebiten.Key) int {
 	return inpututil.KeyPressDuration(key)
 }
 
-func (k *keyboardImpl) Idle(key ebiten.Key) bool {
-	return !ebiten.IsKeyPressed(key) && !inpututil.IsKeyJustReleased(key)
+func (k *keyboardImpl) KeyName(key ebiten.Key) string {
+	return ebiten.KeyName(key)
+}
+
+func (k *keyboardImpl) AppendPressed(keys []ebiten.Key) []ebiten.Key {
+	return inpututil.AppendPressedKeys(keys)
 }
 
 func (k *keyboardImpl) AppendInputChars(runes []rune) []rune {
