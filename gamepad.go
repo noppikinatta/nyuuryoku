@@ -45,6 +45,10 @@ func (s *GamepadConnectionSetter) SetAppendJustConnectedIDsFunc(appendJustConnec
 	s.GamepadConnection.appendJustConnectedIDsFn = appendJustConnectedIDsFn
 }
 
+func (s *GamepadConnectionSetter) SetJustDisconnectedFunc(justDisconnectedFn func(gamepadID ebiten.GamepadID) bool) {
+	s.GamepadConnection.justDisconnectedFn = justDisconnectedFn
+}
+
 type gamepadGeneric[TButton ebiten.GamepadButton | ebiten.StandardGamepadButton, TAxis ebiten.GamepadAxisType | ebiten.StandardGamepadAxis] struct {
 	ID                   ebiten.GamepadID
 	sdlidFn              func(id ebiten.GamepadID) string
