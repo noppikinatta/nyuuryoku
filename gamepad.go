@@ -55,7 +55,7 @@ type gamepadGeneric[TButton ebiten.GamepadButton | ebiten.StandardGamepadButton,
 	pressedFn            func(id ebiten.GamepadID, button TButton) bool
 	justPressedFn        func(id ebiten.GamepadID, button TButton) bool
 	justReleaseedFn      func(id ebiten.GamepadID, button TButton) bool
-	pressedDurationFn    func(id ebiten.GamepadID, button TButton) int
+	pressDurationFn      func(id ebiten.GamepadID, button TButton) int
 	appendPressedFn      func(id ebiten.GamepadID, buttons []TButton) []TButton
 	appendJustPressedFn  func(id ebiten.GamepadID, buttons []TButton) []TButton
 	appendJustReleasedFn func(id ebiten.GamepadID, buttons []TButton) []TButton
@@ -93,8 +93,8 @@ func (g *gamepadGeneric[TButton, TAxis]) JustReleased(button TButton) bool {
 	return g.justReleaseedFn(g.ID, button)
 }
 
-func (g *gamepadGeneric[TButton, TAxis]) PressedDuration(button TButton) int {
-	return g.pressedDurationFn(g.ID, button)
+func (g *gamepadGeneric[TButton, TAxis]) PressDuration(button TButton) int {
+	return g.pressDurationFn(g.ID, button)
 }
 
 func (g *gamepadGeneric[TButton, TAxis]) AppendPressed(buttons []TButton) []TButton {
@@ -145,8 +145,8 @@ func (s *gamepadGenericSetter[TButton, TAxis]) SetJustReleaseedFunc(justReleasee
 	s.gamepadGeneric.justReleaseedFn = justReleaseedFn
 }
 
-func (s *gamepadGenericSetter[TButton, TAxis]) SetPressedDurationFunc(pressedDurationFn func(id ebiten.GamepadID, button TButton) int) {
-	s.gamepadGeneric.pressedDurationFn = pressedDurationFn
+func (s *gamepadGenericSetter[TButton, TAxis]) SetPressDurationFunc(pressDurationFn func(id ebiten.GamepadID, button TButton) int) {
+	s.gamepadGeneric.pressDurationFn = pressDurationFn
 }
 
 func (s *gamepadGenericSetter[TButton, TAxis]) SetAppendPressedFunc(appendPressedFn func(id ebiten.GamepadID, buttons []TButton) []TButton) {
@@ -181,7 +181,7 @@ func NewGamepad(id ebiten.GamepadID) *Gamepad {
 	s.SetPressedFunc(ebiten.IsGamepadButtonPressed)
 	s.SetJustPressedFunc(inpututil.IsGamepadButtonJustPressed)
 	s.SetJustReleaseedFunc(inpututil.IsGamepadButtonJustReleased)
-	s.SetPressedDurationFunc(inpututil.GamepadButtonPressDuration)
+	s.SetPressDurationFunc(inpututil.GamepadButtonPressDuration)
 	s.SetAppendPressedFunc(inpututil.AppendPressedGamepadButtons)
 	s.SetAppendJustPressedFunc(inpututil.AppendJustPressedGamepadButtons)
 	s.SetAppendJustReleasedFunc(inpututil.AppendJustReleasedGamepadButtons)
@@ -222,7 +222,7 @@ func NewStandardGamepad(id ebiten.GamepadID) *StandardGamepad {
 	s.SetPressedFunc(ebiten.IsStandardGamepadButtonPressed)
 	s.SetJustPressedFunc(inpututil.IsStandardGamepadButtonJustPressed)
 	s.SetJustReleaseedFunc(inpututil.IsStandardGamepadButtonJustReleased)
-	s.SetPressedDurationFunc(inpututil.StandardGamepadButtonPressDuration)
+	s.SetPressDurationFunc(inpututil.StandardGamepadButtonPressDuration)
 	s.SetAppendPressedFunc(inpututil.AppendPressedStandardGamepadButtons)
 	s.SetAppendJustPressedFunc(inpututil.AppendJustPressedStandardGamepadButtons)
 	s.SetAppendJustReleasedFunc(inpututil.AppendJustReleasedStandardGamepadButtons)

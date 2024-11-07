@@ -6,12 +6,12 @@ import (
 )
 
 type Mouse struct {
-	cursorPositionFn  func() (int, int)
-	pressedFn         func(button ebiten.MouseButton) bool
-	justPressedFn     func(button ebiten.MouseButton) bool
-	justReleasedFn    func(button ebiten.MouseButton) bool
-	pressedDurationFn func(button ebiten.MouseButton) int
-	wheelFn           func() (xoff, yoff float64)
+	cursorPositionFn func() (int, int)
+	pressedFn        func(button ebiten.MouseButton) bool
+	justPressedFn    func(button ebiten.MouseButton) bool
+	justReleasedFn   func(button ebiten.MouseButton) bool
+	pressDurationFn  func(button ebiten.MouseButton) int
+	wheelFn          func() (xoff, yoff float64)
 }
 
 func NewMouse() *Mouse {
@@ -22,7 +22,7 @@ func NewMouse() *Mouse {
 	s.SetPressedFunc(ebiten.IsMouseButtonPressed)
 	s.SetJustPressedFunc(inpututil.IsMouseButtonJustPressed)
 	s.SetJustReleasedFunc(inpututil.IsMouseButtonJustReleased)
-	s.SetPressedDurationFunc(inpututil.MouseButtonPressDuration)
+	s.SetPressDurationFunc(inpututil.MouseButtonPressDuration)
 	s.SetWheelFunc(ebiten.Wheel)
 
 	return m
@@ -44,8 +44,8 @@ func (m *Mouse) JustReleased(button ebiten.MouseButton) bool {
 	return m.justReleasedFn(button)
 }
 
-func (m *Mouse) PressedDuration(button ebiten.MouseButton) int {
-	return m.pressedDurationFn(button)
+func (m *Mouse) PressDuration(button ebiten.MouseButton) int {
+	return m.pressDurationFn(button)
 }
 
 func (m *Mouse) Wheel() (xoff, yoff float64) {
@@ -72,8 +72,8 @@ func (m *MouseSetter) SetJustReleasedFunc(justReleasedFn func(button ebiten.Mous
 	m.Mouse.justReleasedFn = justReleasedFn
 }
 
-func (m *MouseSetter) SetPressedDurationFunc(pressedDurationFn func(button ebiten.MouseButton) int) {
-	m.Mouse.pressedDurationFn = pressedDurationFn
+func (m *MouseSetter) SetPressDurationFunc(pressDurationFn func(button ebiten.MouseButton) int) {
+	m.Mouse.pressDurationFn = pressDurationFn
 }
 
 func (m *MouseSetter) SetWheelFunc(wheelFn func() (xoff, yoff float64)) {
