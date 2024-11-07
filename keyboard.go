@@ -20,16 +20,7 @@ type Keyboard struct {
 func NewKeyboard() *Keyboard {
 	k := &Keyboard{}
 	s := KeyboardSetter{Keyboard: k}
-
-	s.SetPressedFunc(ebiten.IsKeyPressed)
-	s.SetJustPressedFunc(inpututil.IsKeyJustPressed)
-	s.SetJustReleasedFunc(inpututil.IsKeyJustReleased)
-	s.SetPressDurationFunc(inpututil.KeyPressDuration)
-	s.SetKeyNameFunc(ebiten.KeyName)
-	s.SetAppendPressedFunc(inpututil.AppendPressedKeys)
-	s.SetAppendJustPressedFunc(inpututil.AppendJustPressedKeys)
-	s.SetAppendJustReleasedFunc(inpututil.AppendJustReleasedKeys)
-	s.SetAppendInputCharsFunc(ebiten.AppendInputChars)
+	s.SetDefault()
 
 	return k
 }
@@ -72,6 +63,18 @@ func (k *Keyboard) AppendInputChars(runes []rune) []rune {
 
 type KeyboardSetter struct {
 	Keyboard *Keyboard
+}
+
+func (s *KeyboardSetter) SetDefault() {
+	s.SetPressedFunc(ebiten.IsKeyPressed)
+	s.SetJustPressedFunc(inpututil.IsKeyJustPressed)
+	s.SetJustReleasedFunc(inpututil.IsKeyJustReleased)
+	s.SetPressDurationFunc(inpututil.KeyPressDuration)
+	s.SetKeyNameFunc(ebiten.KeyName)
+	s.SetAppendPressedFunc(inpututil.AppendPressedKeys)
+	s.SetAppendJustPressedFunc(inpututil.AppendJustPressedKeys)
+	s.SetAppendJustReleasedFunc(inpututil.AppendJustReleasedKeys)
+	s.SetAppendInputCharsFunc(ebiten.AppendInputChars)
 }
 
 func (s *KeyboardSetter) SetPressedFunc(pressedFn func(key ebiten.Key) bool) {

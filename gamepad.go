@@ -14,9 +14,7 @@ type GamepadConnection struct {
 func NewGamepadConnection() *GamepadConnection {
 	c := &GamepadConnection{}
 	s := GamepadConnectionSetter{GamepadConnection: c}
-
-	s.SetAppendIDsFunc(ebiten.AppendGamepadIDs)
-	s.SetAppendJustConnectedIDsFunc(inpututil.AppendJustConnectedGamepadIDs)
+	s.SetDefault()
 
 	return c
 }
@@ -35,6 +33,12 @@ func (c *GamepadConnection) JustDisconnected(gamepadID ebiten.GamepadID) bool {
 
 type GamepadConnectionSetter struct {
 	GamepadConnection *GamepadConnection
+}
+
+func (s *GamepadConnectionSetter) SetDefault() {
+	s.SetAppendIDsFunc(ebiten.AppendGamepadIDs)
+	s.SetAppendJustConnectedIDsFunc(inpututil.AppendJustConnectedGamepadIDs)
+	s.SetJustDisconnectedFunc(inpututil.IsGamepadJustDisconnected)
 }
 
 func (s *GamepadConnectionSetter) SetAppendIDsFunc(appendIDsFn func(gamepadIDs []ebiten.GamepadID) []ebiten.GamepadID) {
@@ -176,19 +180,7 @@ func NewGamepad(id ebiten.GamepadID) *Gamepad {
 		},
 	}
 	s := NewGamepadSetter(g)
-
-	s.SetSDLIDFunc(ebiten.GamepadSDLID)
-	s.SetNameFunc(ebiten.GamepadName)
-	s.SetAxisCountFunc(ebiten.GamepadAxisCount)
-	s.SetAxisValueFunc(ebiten.GamepadAxisValue)
-	s.SetButtonCountFunc(ebiten.GamepadButtonCount)
-	s.SetPressedFunc(ebiten.IsGamepadButtonPressed)
-	s.SetJustPressedFunc(inpututil.IsGamepadButtonJustPressed)
-	s.SetJustReleaseedFunc(inpututil.IsGamepadButtonJustReleased)
-	s.SetPressDurationFunc(inpututil.GamepadButtonPressDuration)
-	s.SetAppendPressedFunc(inpututil.AppendPressedGamepadButtons)
-	s.SetAppendJustPressedFunc(inpututil.AppendJustPressedGamepadButtons)
-	s.SetAppendJustReleasedFunc(inpututil.AppendJustReleasedGamepadButtons)
+	s.SetDefault()
 
 	return g
 }
@@ -201,6 +193,21 @@ func NewGamepadSetter(g *Gamepad) *GamepadSetter {
 	s := GamepadSetter{}
 	s.gamepadGeneric = &g.gamepadGeneric
 	return &s
+}
+
+func (s *GamepadSetter) SetDefault() {
+	s.SetSDLIDFunc(ebiten.GamepadSDLID)
+	s.SetNameFunc(ebiten.GamepadName)
+	s.SetAxisCountFunc(ebiten.GamepadAxisCount)
+	s.SetAxisValueFunc(ebiten.GamepadAxisValue)
+	s.SetButtonCountFunc(ebiten.GamepadButtonCount)
+	s.SetPressedFunc(ebiten.IsGamepadButtonPressed)
+	s.SetJustPressedFunc(inpututil.IsGamepadButtonJustPressed)
+	s.SetJustReleaseedFunc(inpututil.IsGamepadButtonJustReleased)
+	s.SetPressDurationFunc(inpututil.GamepadButtonPressDuration)
+	s.SetAppendPressedFunc(inpututil.AppendPressedGamepadButtons)
+	s.SetAppendJustPressedFunc(inpututil.AppendJustPressedGamepadButtons)
+	s.SetAppendJustReleasedFunc(inpututil.AppendJustReleasedGamepadButtons)
 }
 
 type StandardGamepad struct {
@@ -217,22 +224,7 @@ func NewStandardGamepad(id ebiten.GamepadID) *StandardGamepad {
 		},
 	}
 	s := NewStandardgamepadSetter(g)
-
-	s.SetSDLIDFunc(ebiten.GamepadSDLID)
-	s.SetNameFunc(ebiten.GamepadName)
-	s.SetAxisCountFunc(ebiten.GamepadAxisCount)
-	s.SetAxisValueFunc(ebiten.StandardGamepadAxisValue)
-	s.SetButtonCountFunc(ebiten.GamepadButtonCount)
-	s.SetPressedFunc(ebiten.IsStandardGamepadButtonPressed)
-	s.SetJustPressedFunc(inpututil.IsStandardGamepadButtonJustPressed)
-	s.SetJustReleaseedFunc(inpututil.IsStandardGamepadButtonJustReleased)
-	s.SetPressDurationFunc(inpututil.StandardGamepadButtonPressDuration)
-	s.SetAppendPressedFunc(inpututil.AppendPressedStandardGamepadButtons)
-	s.SetAppendJustPressedFunc(inpututil.AppendJustPressedStandardGamepadButtons)
-	s.SetAppendJustReleasedFunc(inpututil.AppendJustReleasedStandardGamepadButtons)
-	s.SetAvailableFunc(ebiten.IsStandardGamepadLayoutAvailable)
-	s.SetAxisAvailableFunc(ebiten.IsStandardGamepadAxisAvailable)
-	s.SetButtonAvailableFunc(ebiten.IsStandardGamepadButtonAvailable)
+	s.SetDefault()
 
 	return g
 }
@@ -259,6 +251,24 @@ func NewStandardgamepadSetter(g *StandardGamepad) *StandardGamepadSetter {
 	s.gamepadGeneric = &g.gamepadGeneric
 	s.standardGamepad = g
 	return &s
+}
+
+func (s *StandardGamepadSetter) SetDefault() {
+	s.SetSDLIDFunc(ebiten.GamepadSDLID)
+	s.SetNameFunc(ebiten.GamepadName)
+	s.SetAxisCountFunc(ebiten.GamepadAxisCount)
+	s.SetAxisValueFunc(ebiten.StandardGamepadAxisValue)
+	s.SetButtonCountFunc(ebiten.GamepadButtonCount)
+	s.SetPressedFunc(ebiten.IsStandardGamepadButtonPressed)
+	s.SetJustPressedFunc(inpututil.IsStandardGamepadButtonJustPressed)
+	s.SetJustReleaseedFunc(inpututil.IsStandardGamepadButtonJustReleased)
+	s.SetPressDurationFunc(inpututil.StandardGamepadButtonPressDuration)
+	s.SetAppendPressedFunc(inpututil.AppendPressedStandardGamepadButtons)
+	s.SetAppendJustPressedFunc(inpututil.AppendJustPressedStandardGamepadButtons)
+	s.SetAppendJustReleasedFunc(inpututil.AppendJustReleasedStandardGamepadButtons)
+	s.SetAvailableFunc(ebiten.IsStandardGamepadLayoutAvailable)
+	s.SetAxisAvailableFunc(ebiten.IsStandardGamepadAxisAvailable)
+	s.SetButtonAvailableFunc(ebiten.IsStandardGamepadButtonAvailable)
 }
 
 func (s *StandardGamepadSetter) SetAvailableFunc(layoutAvailableFn func(id ebiten.GamepadID) bool) {
