@@ -12,8 +12,13 @@ import (
 	"github.com/noppikinatta/nyuuryoku"
 )
 
+const (
+	screenW = 800
+	screenH = 600
+)
+
 func main() {
-	ebiten.SetWindowSize(800, 600)
+	ebiten.SetWindowSize(screenW, screenH)
 
 	g := game{}
 	if err := ebiten.RunGame(&g); err != nil {
@@ -112,6 +117,7 @@ func (g *game) switchMouse() {
 	if g.mouseIsVirtual {
 		setter.SetDefault()
 	} else {
+		setter.SetCursorPositionFunc(g.virtualMouse.cursorPosition)
 		setter.SetPressedFunc(g.virtualMouse.buttonPressed)
 		setter.SetJustPressedFunc(g.virtualMouse.buttonJustPressed)
 		setter.SetJustReleasedFunc(g.virtualMouse.buttonJustReleased)
@@ -132,17 +138,9 @@ func (g *game) Draw(screen *ebiten.Image) {
 	g.drawButton(screen, image.Rect(88, 16, 112, 80), ebiten.MouseButtonMiddle)
 	g.drawButton(screen, image.Rect(120, 16, 184, 144), ebiten.MouseButtonRight)
 
-	for i := range g.log {
-		line := g.log[i]
+	g.drawCursor(screen)
 
-		yIdx := (i - g.logIdx)
-		if yIdx < 0 {
-			yIdx += len(g.log)
-		}
-		y := yIdx * 12
-
-		ebitenutil.DebugPrintAt(screen, line, 200, y)
-	}
+	g.drawLog(screen)
 
 	ebitenutil.DebugPrintAt(screen, "press space to switch to virtual mouse", 10, 576)
 }
@@ -157,6 +155,30 @@ func (g *game) drawButton(screen *ebiten.Image, bounds image.Rectangle, button e
 	}
 
 	screen.DrawImage(dummyWhitePixel, &opt)
+}
+
+func (g *game) drawCursor(screen *ebiten.Image) {
+	x, y := g.mouse.CursorPosition()
+
+	opt := ebiten.DrawImageOptions{}
+	opt.GeoM.Scale(9, 9)
+	opt.GeoM.Translate(float64(x-4), float64(y-4))
+
+	screen.DrawImage(dummyWhitePixel, &opt)
+}
+
+func (g *game) drawLog(screen *ebiten.Image) {
+	for i := range g.log {
+		line := g.log[i]
+
+		yIdx := (i - g.logIdx)
+		if yIdx < 0 {
+			yIdx += len(g.log)
+		}
+		y := yIdx * 12
+
+		ebitenutil.DebugPrintAt(screen, line, 200, y)
+	}
 }
 
 type virtualMouse struct {
@@ -178,6 +200,12 @@ func newVirtualMouse() *virtualMouse {
 
 func (m *virtualMouse) Update() {
 	m.count++
+}
+
+func (m *virtualMouse) cursorPosition() (x, y int) {
+	x = m.count % screenW
+	y = m.count % screenH
+	return x, y
 }
 
 func (m *virtualMouse) buttonPressed(button ebiten.MouseButton) bool {
