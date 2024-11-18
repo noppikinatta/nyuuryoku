@@ -28,7 +28,6 @@ func main() {
 
 type game struct {
 	mouse            *nyuuryoku.Mouse
-	keyboard         *nyuuryoku.Keyboard
 	log              []string
 	logIdx           int
 	pressedDurations map[ebiten.MouseButton]int
@@ -40,9 +39,6 @@ func (g *game) Update() error {
 	if g.mouse == nil {
 		g.mouse = nyuuryoku.NewMouse()
 		g.pressedDurations = make(map[ebiten.MouseButton]int)
-	}
-	if g.keyboard == nil {
-		g.keyboard = nyuuryoku.NewKeyboard()
 	}
 	if g.virtualMouse == nil {
 		g.virtualMouse = newVirtualMouse()
