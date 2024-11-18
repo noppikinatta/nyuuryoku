@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"log"
+	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -26,33 +27,29 @@ func main() {
 }
 
 type game struct {
-	mouse          *nyuuryoku.Mouse
-	keyboard       *nyuuryoku.Keyboard
-	tmpKeys        []ebiten.Key
-	log            []string
-	logIdx         int
-	pressedInfo    []string
-	mouseIsVirtual bool
-	virtualMouse   *virtualMouse
+	keyboard          *nyuuryoku.Keyboard
+	tmpKeys           []ebiten.Key
+	log               []string
+	logIdx            int
+	pressedInfo       []string
+	keyboardIsVirtual bool
+	virtualKeyboard   *virtualKeyboard
 }
 
 func (g *game) Update() error {
-	if g.mouse == nil {
-		g.mouse = nyuuryoku.NewMouse()
-	}
 	if g.keyboard == nil {
 		g.keyboard = nyuuryoku.NewKeyboard()
 	}
-	if g.virtualMouse == nil {
-		g.virtualMouse = newVirtualMouse()
+	if g.virtualKeyboard == nil {
+		g.virtualKeyboard = newVirtualKeyboard()
 	}
 
-	if g.mouseIsVirtual {
-		g.virtualMouse.Update()
+	if g.keyboardIsVirtual {
+		g.virtualKeyboard.Update()
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		g.switchMouse()
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+		g.switchKeyboard()
 	}
 
 	g.appendKeysLog()
@@ -101,21 +98,19 @@ func (g *game) appendLog(line string) {
 	}
 }
 
-func (g *game) switchMouse() {
-	setter := nyuuryoku.MouseSetter{Mouse: g.mouse}
+func (g *game) switchKeyboard() {
+	setter := nyuuryoku.KeyboardSetter{Keyboard: g.keyboard}
 
-	if g.mouseIsVirtual {
+	if g.keyboardIsVirtual {
 		setter.SetDefault()
 	} else {
-		setter.SetCursorPositionFunc(g.virtualMouse.cursorPosition)
-		setter.SetPressedFunc(g.virtualMouse.buttonPressed)
-		setter.SetJustPressedFunc(g.virtualMouse.buttonJustPressed)
-		setter.SetJustReleasedFunc(g.virtualMouse.buttonJustReleased)
-		setter.SetPressDurationFunc(g.virtualMouse.pressDuration)
-		setter.SetWheelFunc(g.virtualMouse.Wheel)
+		setter.SetAppendPressedFunc(g.virtualKeyboard.appendPressed)
+		setter.SetAppendJustPressedFunc(g.virtualKeyboard.appendJustPressed)
+		setter.SetAppendJustReleasedFunc(g.virtualKeyboard.appendJustReleased)
+		setter.SetPressDurationFunc(g.virtualKeyboard.pressedDuration)
 	}
 
-	g.mouseIsVirtual = !g.mouseIsVirtual
+	g.keyboardIsVirtual = !g.keyboardIsVirtual
 }
 
 func (g *game) Draw(screen *ebiten.Image) {
@@ -127,7 +122,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 	g.drawPressedInfo(screen)
 	g.drawLog(screen)
 
-	ebitenutil.DebugPrintAt(screen, "press space to switch to virtual mouse", 10, 576)
+	ebitenutil.DebugPrintAt(screen, "left click to switch to virtual keyboard", 10, 576)
 }
 
 func (g *game) drawPressedInfo(screen *ebiten.Image) {
@@ -153,71 +148,90 @@ func (g *game) drawLog(screen *ebiten.Image) {
 	}
 }
 
-type virtualMouse struct {
-	intervals     map[ebiten.MouseButton]int
-	wheelInterval int
-	count         int
+type keyState struct {
+	StateChangedCount int
+	Pressed           bool
 }
 
-func newVirtualMouse() *virtualMouse {
-	return &virtualMouse{
-		intervals: map[ebiten.MouseButton]int{
-			ebiten.MouseButtonLeft:   60,
-			ebiten.MouseButtonRight:  90,
-			ebiten.MouseButtonMiddle: 150,
-		},
-		wheelInterval: 21,
+type virtualKeyboard struct {
+	tmpKeys []ebiten.Key
+	states  map[ebiten.Key]keyState
+	count   int
+}
+
+func newVirtualKeyboard() *virtualKeyboard {
+	return &virtualKeyboard{
+		states: make(map[ebiten.Key]keyState),
 	}
 }
 
-func (m *virtualMouse) Update() {
-	m.count++
-}
+func (k *virtualKeyboard) Update() {
+	k.count++
+	for key := range ebiten.KeyMax {
+		state, ok := k.states[key]
+		if !ok {
+			state = keyState{}
+		}
 
-func (m *virtualMouse) cursorPosition() (x, y int) {
-	x = m.count % screenW
-	y = m.count % screenH
-	return x, y
-}
-
-func (m *virtualMouse) buttonPressed(button ebiten.MouseButton) bool {
-	interval := m.intervals[button]
-	quotient := m.count / interval
-	return quotient%2 == 1
-}
-
-func (m *virtualMouse) buttonJustPressed(button ebiten.MouseButton) bool {
-	if !m.buttonPressed(button) {
-		return false
+		newPressed := (((k.count + int(key)*30) / (100 + int(key))) % 4) == 1
+		if state.Pressed != newPressed {
+			state.Pressed = newPressed
+			state.StateChangedCount = k.count
+			k.states[key] = state
+		}
 	}
-	return m.duration(button) == 1
 }
 
-func (m *virtualMouse) buttonJustReleased(button ebiten.MouseButton) bool {
-	if m.buttonPressed(button) {
-		return false
+func (k *virtualKeyboard) keys() []ebiten.Key {
+	k.tmpKeys = k.tmpKeys[:0]
+	for key := range k.states {
+		k.tmpKeys = append(k.tmpKeys, key)
 	}
-	return m.duration(button) == 1
+
+	slices.Sort(k.tmpKeys)
+
+	return k.tmpKeys
 }
 
-func (m *virtualMouse) pressDuration(button ebiten.MouseButton) int {
-	if !m.buttonPressed(button) {
+func (k *virtualKeyboard) appendPressed(keys []ebiten.Key) []ebiten.Key {
+	return k.appendCondition(keys, func(state keyState) bool {
+		return state.Pressed
+	})
+}
+
+func (k *virtualKeyboard) appendJustPressed(keys []ebiten.Key) []ebiten.Key {
+	return k.appendCondition(keys, func(state keyState) bool {
+		return state.Pressed && state.StateChangedCount == k.count
+	})
+}
+
+func (k *virtualKeyboard) appendJustReleased(keys []ebiten.Key) []ebiten.Key {
+	return k.appendCondition(keys, func(state keyState) bool {
+		return !state.Pressed && state.StateChangedCount == k.count
+	})
+}
+
+func (k *virtualKeyboard) appendCondition(keys []ebiten.Key, cond func(state keyState) bool) []ebiten.Key {
+	for _, key := range k.keys() {
+		state := k.states[key]
+		if cond(state) {
+			keys = append(keys, key)
+		}
+	}
+
+	return keys
+}
+
+func (k *virtualKeyboard) pressedDuration(key ebiten.Key) int {
+	state, ok := k.states[key]
+	if !ok {
 		return 0
 	}
-	return m.duration(button)
-}
-
-func (m *virtualMouse) duration(button ebiten.MouseButton) int {
-	interval := m.intervals[button]
-	return m.count%interval + 1
-}
-
-func (m *virtualMouse) Wheel() (xoff, yoff float64) {
-	quotient := m.count / m.wheelInterval
-	if quotient%10 == 1 {
-		return 0.1, 0.1
+	if !state.Pressed {
+		return 0
 	}
-	return 0, 0
+
+	return k.count - state.StateChangedCount + 1
 }
 
 func (g *game) Layout(outsideWidth int, outsideHeight int) (screenWidth int, screenHeight int) {
