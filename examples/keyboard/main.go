@@ -99,7 +99,7 @@ func (g *game) appendLog(line string) {
 }
 
 func (g *game) switchKeyboard() {
-	setter := nyuuryoku.KeyboardSetter{Keyboard: g.keyboard}
+	setter := nyuuryoku.NewKeyboardSetter(g.keyboard)
 
 	if g.keyboardIsVirtual {
 		setter.SetDefault()

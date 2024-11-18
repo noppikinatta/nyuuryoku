@@ -16,7 +16,7 @@ type Mouse struct {
 
 func NewMouse() *Mouse {
 	m := &Mouse{}
-	s := MouseSetter{Mouse: m}
+	s := MouseSetter{mouse: m}
 	s.SetDefault()
 
 	return m
@@ -47,7 +47,11 @@ func (m *Mouse) Wheel() (xoff, yoff float64) {
 }
 
 type MouseSetter struct {
-	Mouse *Mouse
+	mouse *Mouse
+}
+
+func NewMouseSetter(mouse *Mouse) *MouseSetter {
+	return &MouseSetter{mouse: mouse}
 }
 
 func (s *MouseSetter) SetDefault() {
@@ -60,25 +64,25 @@ func (s *MouseSetter) SetDefault() {
 }
 
 func (s *MouseSetter) SetCursorPositionFunc(cursorPositionFn func() (int, int)) {
-	s.Mouse.cursorPositionFn = cursorPositionFn
+	s.mouse.cursorPositionFn = cursorPositionFn
 }
 
 func (s *MouseSetter) SetPressedFunc(pressedFn func(button ebiten.MouseButton) bool) {
-	s.Mouse.pressedFn = pressedFn
+	s.mouse.pressedFn = pressedFn
 }
 
 func (s *MouseSetter) SetJustPressedFunc(justPressedFn func(button ebiten.MouseButton) bool) {
-	s.Mouse.justPressedFn = justPressedFn
+	s.mouse.justPressedFn = justPressedFn
 }
 
 func (s *MouseSetter) SetJustReleasedFunc(justReleasedFn func(button ebiten.MouseButton) bool) {
-	s.Mouse.justReleasedFn = justReleasedFn
+	s.mouse.justReleasedFn = justReleasedFn
 }
 
 func (s *MouseSetter) SetPressDurationFunc(pressDurationFn func(button ebiten.MouseButton) int) {
-	s.Mouse.pressDurationFn = pressDurationFn
+	s.mouse.pressDurationFn = pressDurationFn
 }
 
 func (s *MouseSetter) SetWheelFunc(wheelFn func() (xoff, yoff float64)) {
-	s.Mouse.wheelFn = wheelFn
+	s.mouse.wheelFn = wheelFn
 }

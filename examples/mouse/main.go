@@ -108,7 +108,7 @@ func (g *game) appendLog(line string) {
 }
 
 func (g *game) switchMouse() {
-	setter := nyuuryoku.MouseSetter{Mouse: g.mouse}
+	setter := nyuuryoku.NewMouseSetter(g.mouse)
 
 	if g.mouseIsVirtual {
 		setter.SetDefault()

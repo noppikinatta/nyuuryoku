@@ -13,7 +13,7 @@ type GamepadConnection struct {
 
 func NewGamepadConnection() *GamepadConnection {
 	c := &GamepadConnection{}
-	s := GamepadConnectionSetter{GamepadConnection: c}
+	s := GamepadConnectionSetter{gamepadConnection: c}
 	s.SetDefault()
 
 	return c
@@ -32,7 +32,11 @@ func (c *GamepadConnection) JustDisconnected(gamepadID ebiten.GamepadID) bool {
 }
 
 type GamepadConnectionSetter struct {
-	GamepadConnection *GamepadConnection
+	gamepadConnection *GamepadConnection
+}
+
+func NewGamepadConnectionSetter(gamepadConnection *GamepadConnection) *GamepadConnectionSetter {
+	return &GamepadConnectionSetter{gamepadConnection: gamepadConnection}
 }
 
 func (s *GamepadConnectionSetter) SetDefault() {
@@ -42,15 +46,15 @@ func (s *GamepadConnectionSetter) SetDefault() {
 }
 
 func (s *GamepadConnectionSetter) SetAppendIDsFunc(appendIDsFn func(gamepadIDs []ebiten.GamepadID) []ebiten.GamepadID) {
-	s.GamepadConnection.appendIDsFn = appendIDsFn
+	s.gamepadConnection.appendIDsFn = appendIDsFn
 }
 
 func (s *GamepadConnectionSetter) SetAppendJustConnectedIDsFunc(appendJustConnectedIDsFn func(gamepadIDs []ebiten.GamepadID) []ebiten.GamepadID) {
-	s.GamepadConnection.appendJustConnectedIDsFn = appendJustConnectedIDsFn
+	s.gamepadConnection.appendJustConnectedIDsFn = appendJustConnectedIDsFn
 }
 
 func (s *GamepadConnectionSetter) SetJustDisconnectedFunc(justDisconnectedFn func(gamepadID ebiten.GamepadID) bool) {
-	s.GamepadConnection.justDisconnectedFn = justDisconnectedFn
+	s.gamepadConnection.justDisconnectedFn = justDisconnectedFn
 }
 
 type gamepadGeneric[TButton ebiten.GamepadButton | ebiten.StandardGamepadButton, TAxis ebiten.GamepadAxisType | ebiten.StandardGamepadAxis] struct {
