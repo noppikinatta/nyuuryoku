@@ -1,0 +1,6 @@
+ebiten.CursorPosition
+ebiten.IsMouseButtonPressed
+inpututil.IsMouseButtonJustPressed
+inpututil.IsMouseButtonJustReleased
+inpututil.MouseButtonPressDuration
+ebiten.Wheel
