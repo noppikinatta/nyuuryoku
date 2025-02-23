@@ -1,0 +1,9 @@
+ebiten.IsKeyPressed
+inpututil.IsKeyJustPressed
+inpututil.IsKeyJustReleased
+inpututil.KeyPressDuration
+ebiten.KeyName
+inpututil.AppendPressedKeys
+inpututil.AppendJustPressedKeys
+inpututil.AppendJustReleasedKeys
+ebiten.AppendInputChars
