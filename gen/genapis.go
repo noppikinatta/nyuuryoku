@@ -3,6 +3,7 @@ package main
 import (
 	"embed"
 	"fmt"
+	"go/types"
 	"log"
 	"path"
 	"strings"
@@ -72,7 +73,10 @@ func printSignature(line string) error {
 		names := pkg.Types.Scope().Names()
 		for _, name := range names {
 			if name == fqn.Function() {
-				fmt.Println(name)
+				fn := pkg.Types.Scope().Lookup(name)
+				if sig, ok := fn.Type().(*types.Signature); ok {
+					fmt.Println(name, sig.String())
+				}
 			}
 		}
 	}
