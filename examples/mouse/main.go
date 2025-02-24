@@ -63,14 +63,14 @@ func (g *game) Update() error {
 func (g *game) appendButtonLog(button ebiten.MouseButton) {
 	buttonName := g.buttonName(button)
 
-	if g.mouse.JustPressed(button) {
+	if g.mouse.IsJustPressed(button) {
 		g.appendLog(fmt.Sprintf("just pressed: %s", buttonName))
 	}
-	if g.mouse.JustReleased(button) {
+	if g.mouse.IsJustReleased(button) {
 		g.appendLog(fmt.Sprintf("just released: %s", buttonName))
 		g.appendLog(fmt.Sprintf("%6s pressed durarion: %d", buttonName, g.pressedDurations[button]))
 	}
-	if g.mouse.Pressed(button) {
+	if g.mouse.IsPressed(button) {
 		g.pressedDurations[button] = g.mouse.PressDuration(button)
 	}
 }
@@ -114,9 +114,9 @@ func (g *game) switchMouse() {
 		setter.SetDefault()
 	} else {
 		setter.SetCursorPositionFunc(g.virtualMouse.cursorPosition)
-		setter.SetPressedFunc(g.virtualMouse.buttonPressed)
-		setter.SetJustPressedFunc(g.virtualMouse.buttonJustPressed)
-		setter.SetJustReleasedFunc(g.virtualMouse.buttonJustReleased)
+		setter.SetIsPressedFunc(g.virtualMouse.buttonPressed)
+		setter.SetIsJustPressedFunc(g.virtualMouse.buttonJustPressed)
+		setter.SetIsJustReleasedFunc(g.virtualMouse.buttonJustReleased)
 		setter.SetPressDurationFunc(g.virtualMouse.pressDuration)
 		setter.SetWheelFunc(g.virtualMouse.Wheel)
 	}
@@ -145,7 +145,7 @@ func (g *game) drawButton(screen *ebiten.Image, bounds image.Rectangle, button e
 	opt := ebiten.DrawImageOptions{}
 	opt.GeoM.Scale(float64(bounds.Dx()), float64(bounds.Dy()))
 	opt.GeoM.Translate(float64(bounds.Min.X), float64(bounds.Min.Y))
-	if g.mouse.Pressed(button) {
+	if g.mouse.IsPressed(button) {
 		opt.ColorScale.SetG(0.5)
 		opt.ColorScale.SetB(0.5)
 	}
