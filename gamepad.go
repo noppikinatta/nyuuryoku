@@ -128,7 +128,7 @@ type GamepadSetter struct {
 }
 
 func NewGamepadSetter(g *Gamepad) *GamepadSetter {
-	return &GamepadSetter{}
+	return &GamepadSetter{g}
 }
 
 func (s *GamepadSetter) SetDefault() {

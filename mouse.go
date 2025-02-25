@@ -48,7 +48,7 @@ type MouseSetter struct {
 }
 
 func NewMouseSetter(m *Mouse) *MouseSetter {
-	return &MouseSetter{}
+	return &MouseSetter{m}
 }
 
 func (s *MouseSetter) SetDefault() {

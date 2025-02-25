@@ -340,7 +340,7 @@ type {{.TypeName}}Setter struct {
 }
 
 func New{{.TypeName}}Setter({{.Receiver}} *{{.TypeName}}) *{{.TypeName}}Setter {
-	return &{{.TypeName}}Setter{}
+	return &{{.TypeName}}Setter{{"{"}}{{.Receiver}}{{"}"}}
 }
 
 func (s *{{.TypeName}}Setter) SetDefault() {

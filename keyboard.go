@@ -60,7 +60,7 @@ type KeyboardSetter struct {
 }
 
 func NewKeyboardSetter(k *Keyboard) *KeyboardSetter {
-	return &KeyboardSetter{}
+	return &KeyboardSetter{k}
 }
 
 func (s *KeyboardSetter) SetDefault() {
