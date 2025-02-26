@@ -18,7 +18,7 @@ import (
 //go:generate go run .
 //go:generate go fmt ../...
 
-//go:embed funcs/*
+//go:embed apis/*
 var funcs embed.FS
 
 const ebitenURI = "github.com/hajimehoshi/ebiten/v2"
@@ -30,7 +30,7 @@ func main() {
 }
 
 func generate() error {
-	const dirname = "funcs"
+	const dirname = "apis"
 
 	// Map of strings to remove from function names for each file
 	strsToRemoveMap := map[string][]string{
