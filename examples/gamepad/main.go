@@ -105,14 +105,8 @@ func (g *Game) Update() error {
 		// Update button states
 		if state.IsStandard {
 			// For standard layout
-			buttons := []ebiten.StandardGamepadButton{
-				ebiten.StandardGamepadButtonRightBottom,
-				ebiten.StandardGamepadButtonRightRight,
-				ebiten.StandardGamepadButtonRightTop,
-				ebiten.StandardGamepadButtonRightLeft,
-			}
 
-			for _, b := range buttons {
+			for b := ebiten.StandardGamepadButton(0); b < ebiten.StandardGamepadButtonMax; b++ {
 				oldPressed := state.StandardButtonStates[b]
 				newPressed := g.gamepad.IsStandardButtonPressed(id, b)
 				state.StandardButtonStates[b] = newPressed
