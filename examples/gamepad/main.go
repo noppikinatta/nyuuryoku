@@ -2,15 +2,11 @@ package main
 
 import (
 	"fmt"
-	"image/color"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
-	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/noppikinatta/nyuuryoku"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/opentype"
 )
 
 const (
@@ -19,29 +15,13 @@ const (
 )
 
 type Game struct {
-	gamepad   *nyuuryoku.Gamepad
-	mplusFont font.Face
+	gamepad *nyuuryoku.Gamepad
 }
 
-func NewGame() (*Game, error) {
-	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
-	if err != nil {
-		return nil, err
-	}
-
-	mplusFont, err := opentype.NewFace(tt, &opentype.FaceOptions{
-		Size:    16,
-		DPI:     72,
-		Hinting: font.HintingFull,
-	})
-	if err != nil {
-		return nil, err
-	}
-
+func NewGame() *Game {
 	return &Game{
-		gamepad:   nyuuryoku.NewGamepad(),
-		mplusFont: mplusFont,
-	}, nil
+		gamepad: nyuuryoku.NewGamepad(),
+	}
 }
 
 func (g *Game) Update() error {
@@ -55,7 +35,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	y := 16
 	if len(ids) == 0 {
-		text.Draw(screen, "No gamepad is connected.", g.mplusFont, 16, y, color.White)
+		ebitenutil.DebugPrintAt(screen, "No gamepad is connected.", 16, y)
 		return
 	}
 
@@ -68,14 +48,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			layoutStr = "Custom"
 		}
 
-		text.Draw(screen, fmt.Sprintf("Gamepad %d: %s (%s)", id, name, layoutStr), g.mplusFont, 16, y, color.White)
+		ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Gamepad %d: %s (%s)", id, name, layoutStr), 16, y)
 		y += 20
 
 		// Display axis values
 		axisCount := g.gamepad.AxisCount(id)
 		for a := 0; a < axisCount; a++ {
 			value := g.gamepad.AxisValue(id, a)
-			text.Draw(screen, fmt.Sprintf("  Axis %d: %.2f", a, value), g.mplusFont, 16, y, color.White)
+			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("  Axis %d: %.2f", a, value), 16, y)
 			y += 16
 		}
 
@@ -90,9 +70,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			}
 			for _, b := range buttons {
 				if g.gamepad.IsStandardButtonPressed(id, b) {
-					text.Draw(screen, fmt.Sprintf("  Button %d: Pressed", b), g.mplusFont, 16, y, color.RGBA{0, 255, 0, 255})
+					ebitenutil.DebugPrintAt(screen, fmt.Sprintf("  Button %d: Pressed", b), 16, y)
 				} else {
-					text.Draw(screen, fmt.Sprintf("  Button %d: Released", b), g.mplusFont, 16, y, color.White)
+					ebitenutil.DebugPrintAt(screen, fmt.Sprintf("  Button %d: Released", b), 16, y)
 				}
 				y += 16
 			}
@@ -101,9 +81,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			buttonCount := g.gamepad.ButtonCount(id)
 			for b := ebiten.GamepadButton(0); b < ebiten.GamepadButton(buttonCount); b++ {
 				if g.gamepad.IsButtonPressed(id, b) {
-					text.Draw(screen, fmt.Sprintf("  Button %d: Pressed", b), g.mplusFont, 16, y, color.RGBA{0, 255, 0, 255})
+					ebitenutil.DebugPrintAt(screen, fmt.Sprintf("  Button %d: Pressed", b), 16, y)
 				} else {
-					text.Draw(screen, fmt.Sprintf("  Button %d: Released", b), g.mplusFont, 16, y, color.White)
+					ebitenutil.DebugPrintAt(screen, fmt.Sprintf("  Button %d: Released", b), 16, y)
 				}
 				y += 16
 			}
@@ -117,7 +97,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	justConnectedIDs = g.gamepad.AppendJustConnectedIDs(justConnectedIDs)
 	if len(justConnectedIDs) > 0 {
 		for _, id := range justConnectedIDs {
-			text.Draw(screen, fmt.Sprintf("New gamepad connected: %d", id), g.mplusFont, 16, y, color.RGBA{0, 255, 0, 255})
+			ebitenutil.DebugPrintAt(screen, fmt.Sprintf("New gamepad connected: %d", id), 16, y)
 			y += 20
 		}
 	}
@@ -131,12 +111,7 @@ func main() {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Gamepad Example")
 
-	game, err := NewGame()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := ebiten.RunGame(game); err != nil {
+	if err := ebiten.RunGame(NewGame()); err != nil {
 		log.Fatal(err)
 	}
 }
