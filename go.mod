@@ -1,9 +1,9 @@
 module github.com/noppikinatta/nyuuryoku
 
-go 1.22.3
+go 1.24
 
 require (
-	github.com/hajimehoshi/ebiten/v2 v2.8.3
+	github.com/hajimehoshi/ebiten/v2 v2.8.6
 	golang.org/x/tools v0.25.0
 )
 
